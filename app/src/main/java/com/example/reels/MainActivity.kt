@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.viewpager2.widget.ViewPager2
 import com.example.reels.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), VideoAdapter.OnVideoPreparedListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: VideoAdapter
     private val videos = ArrayList<Video>()
@@ -65,12 +65,13 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        adapter = VideoAdapter(this, videos, object : VideoAdapter.OnVideoPreparedListener {
-            override fun onVideoPrepared(exoPlayerItem: ExoPlayerItem) {
-                exoPlayerItems.add(exoPlayerItem)
+/*        adapter = VideoAdapter(this, videos, object : VideoAdapter.OnVideoPreparedListener {
+            override fun onVideoPrepared(exoPlayer: ExoPlayerItem) {
+                exoPlayerItems.add(exoPlayer)
             }
+        })*/
 
-        })
+        adapter = VideoAdapter(this, videos, this)
         binding.viewPager2.adapter = adapter
 
         binding.viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -95,7 +96,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         val index = exoPlayerItems.indexOfFirst { it.position == binding.viewPager2.currentItem }
-        if(index!= -1 ){
+        if (index != -1) {
             val player = exoPlayerItems[index].exoplayer
             player.pause()
             player.playWhenReady = false
@@ -105,7 +106,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         val index = exoPlayerItems.indexOfFirst { it.position == binding.viewPager2.currentItem }
-        if(index!= -1 ){
+        if (index != -1) {
             val player = exoPlayerItems[index].exoplayer
             player.playWhenReady = true
             player.play()
@@ -114,13 +115,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(exoPlayerItems.isNotEmpty()){
-            for(item in exoPlayerItems){
+        if (exoPlayerItems.isNotEmpty()) {
+            for (item in exoPlayerItems) {
                 val player = item.exoplayer
                 player.stop()
                 player.clearMediaItems()
             }
         }
     }
+
+    override fun onVideoPrepared(exoPlayer: ExoPlayerItem) {
+        exoPlayerItems.add(exoPlayer)    }
 }
 

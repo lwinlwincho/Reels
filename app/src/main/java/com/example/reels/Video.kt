@@ -1,6 +1,6 @@
 package com.example.reels
 
-class Video (
+class Video(
     var title: String,
     var url: String
-        )
+)

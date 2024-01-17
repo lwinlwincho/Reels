@@ -1,6 +1,7 @@
 package com.example.reels
 
 import android.content.Context
+import android.content.res.Resources
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +15,8 @@ import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.text.ExoplayerCuesDecoder
 import com.google.android.exoplayer2.upstream.DefaultDataSource
+import com.google.android.exoplayer2.video.VideoSize
 
 class VideoAdapter(
     var context: Context,
@@ -69,6 +70,26 @@ class VideoAdapter(
                     super.onPlayerError(error)
                     Toast.makeText(context, "Cannot Play this video", Toast.LENGTH_LONG).show()
                 }
+
+                override fun onVideoSizeChanged(videoSize: VideoSize) {
+                    super.onVideoSizeChanged(videoSize)
+//                                 val videoRatio = videoSize.width / videoSize.height.toFloat()
+//                                val screenRatio = binding.videoView.width / binding.videoView.height.toFloat()
+//                                val scale = videoRatio / screenRatio
+//                                if (scale >= 1f) {
+//                                    binding.videoView.scaleX = scale
+//                                } else {
+//                                    binding.videoView.scaleY = 1f / scale
+//                                }
+//                }
+                    val videoWidth = videoSize.width
+                    val videoHeight = videoSize.height
+                    val screenWidth = Resources.getSystem().displayMetrics.widthPixels
+                    val layout = binding.playerView.layoutParams
+                    layout.width = screenWidth
+                    layout.height = ((videoHeight.toFloat() / videoWidth.toFloat()) * screenWidth.toFloat()).toInt()
+                    binding.playerView.layoutParams = layout
+                }
             })
 
             binding.playerView.player = exoplayer
@@ -88,7 +109,8 @@ class VideoAdapter(
                 exoplayer.play()
             }
 
-            videoPrepareListener.onVideoPrepared(ExoPlayerItem(exoplayer,absoluteAdapterPosition))
+            videoPrepareListener.onVideoPrepared(ExoPlayerItem(exoplayer, absoluteAdapterPosition))
+
         }
     }
 
